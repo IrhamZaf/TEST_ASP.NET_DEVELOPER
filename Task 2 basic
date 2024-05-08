@@ -1,66 +1,72 @@
 using System;
 
-namespace LoanCalculator
+namespace ReferenceNumberGenerator
 {
+    public class SpecialDigitCalculator
+    {
+        public static char CalculateSpecialDigit(string value)
+        {
+            // Initialize variables for A, B, C, D, and E
+            int A = 0, B = 0, C = 0, D = 0, E = 0;
+
+            // Iterate through the digits of the value
+            for (int i = 0; i < value.Length; i++)
+            {
+                int digit = int.Parse(value[i].ToString());
+
+                // Calculate A, B, C, D, and E based on their respective multipliers
+                switch (i % 5)
+                {
+                    case 0:
+                        A += digit * 10;
+                        break;
+                    case 1:
+                        B += digit * 8;
+                        break;
+                    case 2:
+                        C += digit * 6;
+                        break;
+                    case 3:
+                        D += digit * 4;
+                        break;
+                    case 4:
+                        E += digit * 2;
+                        break;
+                }
+            }
+
+            // Calculate the final sum
+            int finalSum = A + B + C + D + E;
+
+            // Reduce the final sum to a single digit
+            int specialDigit = ReduceToSingleDigit(finalSum);
+
+            return char.Parse(specialDigit.ToString());
+        }
+
+        private static int ReduceToSingleDigit(int num)
+        {
+            while (num > 9)
+            {
+                int sum = 0;
+                while (num != 0)
+                {
+                    sum += num % 10;
+                    num /= 10;
+                }
+                num = sum;
+            }
+            return num;
+        }
+    }
+
     class Program
     {
         static void Main(string[] args)
         {
-            double targetMonthlyInstallment = 750; // Target monthly installment
-            double interestRate = 0.065 / 12; // Monthly interest rate (6.5% per annum fixed rate)
-            int years = 20; // Loan period in years
-
-            // Starting and ending principal amounts for the binary search
-            double startPrincipal = 0;
-            double endPrincipal = 1000000; // Maximum allowable principal amount
-
-            // Binary search for the principal amount
-            double principal = BinarySearchPrincipal(startPrincipal, endPrincipal, targetMonthlyInstallment, interestRate, years);
-
-            // Print the result
-            Console.WriteLine($"The loan amount required to achieve a monthly installment of RM {targetMonthlyInstallment:F2} with a loan period of {years} years is approximately RM {principal:F2}.");
-        }
-
-        static double BinarySearchPrincipal(double startPrincipal, double endPrincipal, double targetMonthlyInstallment, double interestRate, int years)
-        {
-            double precision = 0.01; // Precision for comparison
-
-            // Binary search loop
-            while (startPrincipal <= endPrincipal)
-            {
-                double midPrincipal = (startPrincipal + endPrincipal) / 2; // Calculate the midpoint
-
-                // Calculate the monthly installment for the current principal amount
-                double monthlyInstallment = CalculateMonthlyInstallment(midPrincipal, interestRate, years);
-
-                // Check if the difference between the calculated and target monthly installment is within the precision
-                if (Math.Abs(monthlyInstallment - targetMonthlyInstallment) < precision)
-                {
-                    return midPrincipal; // Return the principal amount if it meets the target monthly installment
-                }
-                else if (monthlyInstallment > targetMonthlyInstallment)
-                {
-                    // If the calculated monthly installment is greater than the target, adjust the end point
-                    endPrincipal = midPrincipal - precision;
-                }
-                else
-                {
-                    // If the calculated monthly installment is less than the target, adjust the start point
-                    startPrincipal = midPrincipal + precision;
-                }
-            }
-
-            return -1; // Return -1 if no suitable principal amount is found
-        }
-
-        static double CalculateMonthlyInstallment(double principal, double interestRate, int years)
-        {
-            int numberOfPayments = years * 12; // Total number of payments
-
-            // Calculate the monthly installment (EMI)
-            double monthlyInstallment = principal * interestRate * Math.Pow(1 + interestRate, numberOfPayments) / (Math.Pow(1 + interestRate, numberOfPayments) - 1);
-
-            return monthlyInstallment;
+            string value = "9729923302749217";
+            char specialDigit = SpecialDigitCalculator.CalculateSpecialDigit(value);
+            Console.WriteLine($"The special digit for the value {value} is '{specialDigit}'.");
         }
     }
 }
